@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JIG LOG</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><div class="container nav"><a class="logo" href="index.html">JIG <span>LOG</span></a><a class="home-btn" href="index.html">⌂ HOME</a></div></header><header><div class="logo">🎣 JIG LOG</div><div class="subtitle">JIGGING × LOG × ANALYZE</div></header><main><section class="hero">
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07111f"><meta name="description" content="JIGGING × LOG × ANALYZE — ジギング釣行・釣果管理アプリ"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="JIG LOG"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png"><title>JIG LOG</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><div class="container nav"><a class="logo" href="index.html">JIG <span>LOG</span></a><a class="home-btn" href="index.html">⌂ HOME</a></div></header><header><div class="logo">🎣 JIG LOG</div><div class="subtitle">JIGGING × LOG × ANALYZE</div></header><main><section class="hero">
   <div class="hero-content">
     <div class="eyebrow">JIGGING FISHING LOG</div>
     <h1>JIG LOG</h1>
@@ -15,4 +15,37 @@
   <a href="analysis.html"><span class="nav-icon">📊</span><span class="nav-text">分析する</span><span class="nav-arrow">›</span></a>
   <a href="tide-settings.html"><span class="nav-icon">🌊</span><span class="nav-text">潮流API設定</span><span class="nav-arrow">›</span></a>
 </nav>
-<nav class="menu"></nav></main><footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer></body></html>
+
+<div id="pwaInstallWrap" style="display:none;text-align:center;margin:18px 0 6px;">
+  <button id="pwaInstallBtn" type="button"
+    style="border:1px solid rgba(70,150,255,.55);background:rgba(15,54,95,.75);color:#fff;border-radius:12px;padding:11px 18px;font-weight:700;cursor:pointer;">
+    📲 JIG LOGをホーム画面に追加
+  </button>
+</div>
+<nav class="menu"></nav></main><footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer>
+<script>
+let deferredInstallPrompt = null;
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  const wrap = document.getElementById("pwaInstallWrap");
+  if (wrap) wrap.style.display = "block";
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("pwaInstallBtn");
+  if (btn) {
+    btn.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      const wrap = document.getElementById("pwaInstallWrap");
+      if (wrap) wrap.style.display = "none";
+    });
+  }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch((err) => console.log("SW registration failed", err));
+  }
+});
+</script>
+</body></html>
