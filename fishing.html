@@ -1,0 +1,25 @@
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>釣行記録 - JIG LOG</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><div class="container nav"><a class="logo" href="index.html">JIG <span>LOG</span></a><a class="home-btn" href="index.html">⌂ HOME</a></div></header><header><div class="logo">🎣 JIG LOG</div><div class="subtitle">JIGGING × LOG × ANALYZE</div></header><main>
+<section class="card"><h1>🎣 釣行を記録</h1><p class="lead">使ったジグとタックルも登録すると、後から実績を正確に分析できます。</p><div class="grid">
+<div class="field"><label>📅 日付</label><input id="date" type="date"></div><div class="field"><label>⏰ 釣行開始時刻（任意）</label><input id="tripTime" type="time"></div><div class="field"><label>📍 潮流エリア</label><select id="tideArea"><option value="明石海峡">明石海峡</option><option value="友ヶ島水道">友ヶ島水道</option><option value="鳴門海峡">鳴門海峡</option><option value="備讃瀬戸">備讃瀬戸</option></select></div><div class="field"><label>🚢 船</label><input id="boat"></div>
+<div class="field"><label>📍 エリア</label><input id="area" placeholder="明石など"></div><div class="field"><label>🌊 水深</label><input id="depth" type="number" placeholder="60"></div>
+<div class="field"><label>🌡️ 水温</label><input id="waterTemp" type="number" step=".1"></div><div class="field"><label>🌙 潮</label><select id="tide"><option value="">選択</option><option>大潮</option><option>中潮</option><option>小潮</option><option>長潮</option><option>若潮</option></select></div>
+<div class="field"><label>💨 潮流</label><input id="current"></div><div class="field"><label>☀️ 天気</label><input id="weather"></div>
+<div class="field full"><label>🌊 潮流データ</label><div id="tideResult" class="jig-box"><div class="note">日付を入れて「潮流を取得」を押すと、自動取得します。</div></div><button type="button" class="secondary" onclick="getTideForTrip()">🌊 潮流を自動取得</button></div><div class="field full"><label>🎣 使用タックルセット</label><select id="tackleSet"></select></div>
+<div class="full jig-box"><h3>🔱 この釣行で使ったジグ</h3><p class="note">釣れなかったジグもチェックしてください。</p><div id="jigList" class="jig-list"></div></div>
+</div><div class="buttons"><button class="action-save primary" onclick="saveFishing()"</div></section></main><script src="script.js"></script><script>
+loadTackleSelect();loadJigChecks();
+let tideAutoData=null;
+async function getTideForTrip(){
+    if(!date.value){alert("日付を入力してください");return}
+    const tm = tripTime.value || "12:00";
+    tideResult.innerHTML='<div class="note">🌊 潮流データを取得中...</div>';
+    const r=await fetchTideData({area:tideArea.value,date:date.value,time:tm});
+    if(!r.ok){
+        tideResult.innerHTML='<div class="note">⚠️ '+esc(r.message||"取得できませんでした")+'</div>';
+        return;
+    }
+    tideAutoData=r.data||r;
+    tideResult.innerHTML=`<div class="stats"><div class="stat"><span>流向</span><strong>${esc(tideAutoData.direction||"-")}</strong></div><div class="stat"><span>流速</span><strong>${esc(tideAutoData.speed??"-")}</strong><small>kn</small></div><div class="stat"><span>状態</span><strong>${esc(tideAutoData.state||"-")}</strong></div><div class="stat"><span>次回転流</span><strong>${esc(tideAutoData.nextTurn||"-")}</strong></div></div>`;
+}
+function saveFishing(){const d={id:Date.now(),date:date.value,boat:boat.value,area:area.value,depth:depth.value,waterTemp:waterTemp.value,tide:tide.value,current:current.value,weather:weather.value,tideArea:tideArea.value,tripTime:tripTime.value,tideAuto:tideAutoData,tackleSetId:tackleSet.value,usedJigs:[...document.querySelectorAll('input[name="usedJig"]:checked')].map(x=>x.value)};const a=get("fishingTrips");a.push(d);put("fishingTrips",a);put("fishingData",d);alert("🎣 釣行を保存しました！");location.href="index.html"}
+</script><footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer></body></html>

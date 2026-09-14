@@ -1,0 +1,26 @@
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>釣果登録 - JIG LOG</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><div class="container nav"><a class="logo" href="index.html">JIG <span>LOG</span></a><a class="home-btn" href="index.html">⌂ HOME</a></div></header><header><div class="logo">🎣 JIG LOG</div><div class="subtitle">JIGGING × LOG × ANALYZE</div></header><main>
+<section class="card"><h1>🐟 釣果を登録</h1><p class="lead">直前の釣行に紐づけて登録します。</p><div class="grid">
+<div class="field"><label>🐟 魚種</label><select id="fish"><option>ハマチ</option><option>メジロ</option><option>ブリ</option><option>サワラ</option><option>タチウオ</option><option>その他</option></select></div>
+<div class="field"><label>📏 サイズ(cm)</label><input id="size" type="number"></div><div class="field"><label>⚖️ 重量(kg)</label><input id="weight" type="number" step=".1"></div>
+<div class="field"><label>🔱 使用ジグ</label><select id="jig"></select></div><div class="field"><label>🎨 ヒットカラー</label><input id="color"></div>
+<div class="field"><label>🌊 ヒット水深(m)</label><input id="hitDepth" type="number"></div><div class="field"><label>📐 ラインの角度(°)</label><input id="lineAngle" type="number" min="0" max="180" step="1" placeholder="例：45"></div><div class="field"><label>🔄 アクション</label><select id="action"><option>ワンピッチ</option><option>ただ巻き</option><option>ロングジャーク</option><option>コンビネーション</option><option>その他</option></select></div>
+<div class="field"><label>⏰ ヒット時間</label><input id="hitTime" type="time" onchange="getTideForCatch()"></div><div class="field"><label>📸 写真</label><input id="photo" type="file" accept="image/*"></div>
+<div class="field full"><label>🌊 ヒット時潮流</label><div id="hitTideResult" class="jig-box"><div class="note">ヒット時間を入れると自動取得します。</div></div></div></div><div class="buttons"><button class="primary" onclick="saveCatch()">🐟 保存</button></div></section></main><script src="script.js"></script><script>
+const params=new URLSearchParams(location.search);const tripId=params.get("tripId");let hitTideData=null;
+const js=get("jigs");jig.innerHTML='<option value="">選択してください</option>'+js.map(x=>`<option value="${esc(x.id)}">${esc(x.name)} / ${esc(x.weight||"-")}g / ${esc(x.color||"-")}</option>`).join("");
+let photoData="";
+photo.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>photoData=r.result;r.readAsDataURL(f)};
+async function getTideForCatch(){
+    const trips=get("fishingTrips");
+    const tid=tripId||(JSON.parse(localStorage.getItem("fishingData"))||{}).id;
+    const tr=trips.find(x=>String(x.id)===String(tid));
+    const ar=tr?.tideArea||tr?.area||"明石海峡";
+    if(!hitTime.value||!tr?.date){return}
+    hitTideResult.innerHTML='<div class="note">🌊 潮流データを取得中...</div>';
+    const r=await fetchTideData({area:ar,date:tr.date,time:hitTime.value});
+    if(!r.ok){hitTideResult.innerHTML='<div class="note">⚠️ '+esc(r.message||"取得できませんでした")+'</div>';return}
+    hitTideData=r.data||r;
+    hitTideResult.innerHTML=`<div class="stats"><div class="stat"><span>流向</span><strong>${esc(hitTideData.direction||"-")}</strong></div><div class="stat"><span>流速</span><strong>${esc(hitTideData.speed??"-")}</strong><small>kn</small></div><div class="stat"><span>状態</span><strong>${esc(hitTideData.state||"-")}</strong></div><div class="stat"><span>次回転流</span><strong>${esc(hitTideData.nextTurn||"-")}</strong></div></div>`;
+}
+function saveCatch(){let tid=tripId;const latest=get("fishingTrips");if(!tid){const fd=JSON.parse(localStorage.getItem("fishingData"));if(!fd){alert("先に釣行を登録してください");return}tid=fd.id}const j=js.find(x=>String(x.id)===String(jig.value));if(!j){alert("使用ジグを選択してください");return}const c={id:Date.now(),fishingId:Number(tid),jigId:j.id,jig:j.name,jigWeight:j.weight,jigColor:j.color,fish:fish.value,size:size.value,weight:weight.value,color:color.value||j.color,hitDepth:hitDepth.value,lineAngle:lineAngle.value,action:action.value,hitTime:hitTime.value,hitTide:hitTideData,photo:photoData};const a=get("catches");a.push(c);put("catches",a);alert("🐟 釣果を保存しました！");location.href="trip-detail.html?id="+encodeURIComponent(tid)}
+</script><footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer></body></html>

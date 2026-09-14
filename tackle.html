@@ -1,0 +1,26 @@
+<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>タックル管理 - JIG LOG</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><div class="container nav"><a class="logo" href="index.html">JIG <span>LOG</span></a><a class="home-btn" href="index.html">⌂ HOME</a></div></header><header><div class="logo">🎣 JIG LOG</div><div class="subtitle">JIGGING × LOG × ANALYZE</div></header><main>
+
+<section class="card"><h1>🎣 タックル管理</h1><p class="lead">ロッド・リール・ラインを登録し、組み合わせを「タックルセット」として保存します。</p>
+<div class="grid">
+<div class="field"><label>ロッド</label><select id="rod"></select></div><div class="field"><label>リール</label><select id="reel"></select></div><div class="field"><label>ライン</label><select id="line"></select></div><div class="field"><label>セット名</label><input id="setName" placeholder="明石青物①"></div>
+</div><button class="primary" onclick="saveSet()">＋ タックルセット登録</button></section>
+<section class="card"><h2>🪄 ロッド・リール・ラインを登録</h2><div class="grid">
+<div class="field"><label>ロッド名</label><input id="rodName"></div><div class="field"><label>型番</label><input id="rodModel"></div><div class="field"><label>長さ</label><input id="rodLength"></div><div class="field"><label>メモ</label><input id="rodMemo"></div>
+<div class="field"><label>リール名</label><input id="reelName"></div><div class="field"><label>番手</label><input id="reelSize"></div><div class="field"><label>ギア比</label><input id="reelGear"></div><div class="field"><label>最大ドラグ</label><input id="reelDrag"></div>
+<div class="field"><label>PEメーカー・商品名</label><input id="lineName"></div><div class="field"><label>PE号数</label><input id="lineSize"></div><div class="field"><label>リーダー</label><input id="leader"></div><div class="field"><label>リーダー号数/lb</label><input id="leaderSize"></div>
+</div><div class="buttons"><button class="primary" onclick="saveRod()">＋ ロッド登録</button><button class="primary" onclick="saveReel()">＋ リール登録</button><button class="primary" onclick="saveLine()">＋ ライン登録</button></div></section>
+<section class="box"><h2>🎣 タックルセット</h2><div id="sets" class="list"></div></section>
+<section class="box"><h2>🪄 登録パーツ</h2><div id="parts" class="list"></div></section>
+</main><script src="script.js"></script><script>
+function opts(id,a,label){document.getElementById(id).innerHTML='<option value="">選択してください</option>'+a.map(x=>`<option value="${x.id}">${esc(x[label])}</option>`).join("")}
+function refresh(){opts("rod",get("rods"),"name");opts("reel",get("reels"),"name");opts("line",get("lines"),"name");render()}
+function saveRod(){if(!rodName.value)return alert("ロッド名を入力");let a=get("rods");a.push({id:Date.now(),name:rodName.value,model:rodModel.value,length:rodLength.value,memo:rodMemo.value});put("rods",a);rodName.value=rodModel.value=rodLength.value=rodMemo.value="";refresh()}
+function saveReel(){if(!reelName.value)return alert("リール名を入力");let a=get("reels");a.push({id:Date.now(),name:reelName.value,size:reelSize.value,gear:reelGear.value,drag:reelDrag.value});put("reels",a);reelName.value=reelSize.value=reelGear.value=reelDrag.value="";refresh()}
+function saveLine(){if(!lineName.value)return alert("ライン名を入力");let a=get("lines");a.push({id:Date.now(),name:lineName.value,size:lineSize.value,leader:leader.value,leaderSize:leaderSize.value});put("lines",a);lineName.value=lineSize.value=leader.value=leaderSize.value="";refresh()}
+function saveSet(){if(!setName.value)return alert("セット名を入力");const a=get("tackleSets");a.push({id:Date.now(),name:setName.value,rodId:rod.value,reelId:reel.value,lineId:line.value});put("tackleSets",a);setName.value="";refresh()}
+function del(type,id){put(type,get(type).filter(x=>String(x.id)!==String(id)));refresh()}
+function render(){const rs=get("rods"),rr=get("reels"),ls=get("lines"),ss=get("tackleSets");const R=id=>rs.find(x=>String(x.id)===String(id)),E=id=>rr.find(x=>String(x.id)===String(id)),L=id=>ls.find(x=>String(x.id)===String(id));
+sets.innerHTML=ss.length?ss.slice().reverse().map(x=>{let r=R(x.rodId),e=E(x.reelId),l=L(x.lineId);return `<article class="item"><div class="item-head"><strong>🎣 ${esc(x.name)}</strong><button class="danger" onclick="del('tackleSets','${x.id}')">削除</button></div><div class="meta">ロッド：${esc(r?.name||"-")} ${esc(r?.model||"")}</div><div class="meta">リール：${esc(e?.name||"-")} ${esc(e?.size||"")}</div><div class="meta">ライン：${esc(l?.name||"-")} PE${esc(l?.size||"")} / リーダー ${esc(l?.leaderSize||"-")}</div></article>`}).join(""):'<div class="note">タックルセットがありません。</div>';
+parts.innerHTML=[...rs.map(x=>`<article class="item"><strong>🪄 ロッド：${esc(x.name)}</strong><div class="meta">${esc(x.model||"-")} / ${esc(x.length||"-")}</div></article>`),...rr.map(x=>`<article class="item"><strong>⚙️ リール：${esc(x.name)}</strong><div class="meta">${esc(x.size||"-")} / ギア比 ${esc(x.gear||"-")} / ドラグ ${esc(x.drag||"-")}</div></article>`),...ls.map(x=>`<article class="item"><strong>🧵 ライン：${esc(x.name)}</strong><div class="meta">PE${esc(x.size||"-")} / リーダー ${esc(x.leader||"-")} ${esc(x.leaderSize||"")}</div></article>`)].join("")||'<div class="note">登録パーツがありません。</div>'}
+refresh()
+</script><footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer></body></html>
