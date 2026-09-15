@@ -1,26 +1,166 @@
-<!doctype html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>タックル管理 - JIG LOG</title><link rel="stylesheet" href="style.css"></head><body><header class="site-header"><div class="container nav"><a class="logo" href="index.html">JIG <span>LOG</span></a><a class="home-btn" href="index.html">⌂ HOME</a></div></header><header><div class="logo">🎣 JIG LOG</div><div class="subtitle">JIGGING × LOG × ANALYZE</div></header><main>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>タックル管理 - JIG LOG</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.tackle-page{max-width:1120px;margin:auto;padding:0 14px 70px}
+.tackle-title{padding:22px 0 14px}
+.tackle-title h1{font-size:clamp(26px,4vw,38px);margin:0 0 7px}
+.tackle-title p{margin:0;color:var(--muted);font-size:13px}
+.tackle-section{margin-top:18px}
+.tackle-section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 0 12px}
+.tackle-section-title h2{margin:0;font-size:20px}
+.tackle-section-title p{margin:0;color:var(--muted);font-size:11px}
+.set-card{padding:20px}
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.set-grid .field:last-child{grid-column:1/-1}
+.tackle-save-row{display:flex;justify-content:flex-end;margin-top:15px}
+.tackle-save{min-width:210px}
+.parts-register{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.part-card{position:relative;overflow:hidden;padding:18px}
+.part-card:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent);opacity:.8}
+.part-head{display:flex;align-items:center;gap:10px;margin-bottom:15px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.part-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:rgba(49,197,255,.10);border:1px solid rgba(49,197,255,.18);font-size:20px}
+.part-head h3{margin:0;font-size:17px}
+.part-head p{margin:3px 0 0;color:var(--muted);font-size:10px}
+.part-fields{display:grid;gap:12px}
+.part-card .field label{font-size:11px}
+.part-card input{min-height:44px}
+.part-save{width:100%;margin-top:15px}
+.parts-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.parts-column{min-width:0}
+.parts-column-title{margin:0 0 9px;padding:9px 12px;border-radius:11px;background:rgba(255,255,255,.045);border:1px solid var(--line);font-size:13px}
+.parts-column .item{margin-bottom:9px}
+.item{padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.025)}
+.item-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.item-head strong{font-size:13px}
+.meta{color:var(--muted);font-size:11px;line-height:1.7;margin-top:5px}
+.danger{padding:7px 10px;border-radius:9px;background:rgba(255,90,90,.10);border:1px solid rgba(255,120,120,.15);color:#ffb0b0;box-shadow:none;font-size:11px}
+.note{padding:14px;color:var(--muted);font-size:12px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+@media(max-width:900px){.parts-register,.parts-list{grid-template-columns:1fr 1fr}.parts-column:last-child{grid-column:1/-1}.parts-column:last-child .item{max-width:none}.parts-register .part-card:last-child{grid-column:1/-1}.parts-register .part-card:last-child .part-fields{grid-template-columns:1fr 1fr}.parts-register .part-card:last-child .part-save{max-width:50%}}
+@media(max-width:600px){.tackle-page{padding-left:10px;padding-right:10px}.set-grid{grid-template-columns:1fr}.set-grid .field:last-child{grid-column:auto}.parts-register,.parts-list{grid-template-columns:1fr}.parts-register .part-card:last-child{grid-column:auto}.parts-register .part-card:last-child .part-fields{grid-template-columns:1fr}.parts-register .part-card:last-child .part-save{max-width:none}.tackle-save-row{display:block}.tackle-save{width:100%}.tackle-section-title{display:block}.tackle-section-title p{margin-top:4px}.part-card{padding:16px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav">
+    <a class="logo" href="index.html">JIG <span>LOG</span></a>
+    <a class="home-btn" href="index.html">HOME</a>
+  </div>
+</header>
 
-<section class="card"><h1>🎣 タックル管理</h1><p class="lead">ロッド・リール・ラインを登録し、組み合わせを「タックルセット」として保存します。</p>
-<div class="grid">
-<div class="field"><label>ロッド</label><select id="rod"></select></div><div class="field"><label>リール</label><select id="reel"></select></div><div class="field"><label>ライン</label><select id="line"></select></div><div class="field"><label>セット名</label><input id="setName" placeholder="明石青物①"></div>
-</div><button class="primary" onclick="saveSet()">＋ タックルセット登録</button></section>
-<section class="card"><h2>🪄 ロッド・リール・ラインを登録</h2><div class="grid">
-<div class="field"><label>ロッド名</label><input id="rodName"></div><div class="field"><label>型番</label><input id="rodModel"></div><div class="field"><label>長さ</label><input id="rodLength"></div><div class="field"><label>メモ</label><input id="rodMemo"></div>
-<div class="field"><label>リール名</label><input id="reelName"></div><div class="field"><label>番手</label><input id="reelSize"></div><div class="field"><label>ギア比</label><input id="reelGear"></div><div class="field"><label>最大ドラグ</label><input id="reelDrag"></div>
-<div class="field"><label>PEメーカー・商品名</label><input id="lineName"></div><div class="field"><label>PE号数</label><input id="lineSize"></div><div class="field"><label>リーダー</label><input id="leader"></div><div class="field"><label>リーダー号数/lb</label><input id="leaderSize"></div>
-</div><div class="buttons"><button class="primary" onclick="saveRod()">＋ ロッド登録</button><button class="primary" onclick="saveReel()">＋ リール登録</button><button class="primary" onclick="saveLine()">＋ ライン登録</button></div></section>
-<section class="box"><h2>🎣 タックルセット</h2><div id="sets" class="list"></div></section>
-<section class="box"><h2>🪄 登録パーツ</h2><div id="parts" class="list"></div></section>
-</main><script src="script.js"></script><script>
+<main class="tackle-page">
+  <div class="tackle-title">
+    <h1>🎣 タックル管理</h1>
+    <p>ロッド・リール・ラインを登録して、自分のタックルを整理できます。</p>
+  </div>
+
+  <section class="tackle-section">
+    <div class="tackle-section-title">
+      <h2>🎯 タックルセットを作成</h2>
+      <p>登録したパーツを組み合わせて保存</p>
+    </div>
+    <div class="card set-card">
+      <div class="set-grid">
+        <div class="field"><label>ロッド</label><select id="rod"></select></div>
+        <div class="field"><label>リール</label><select id="reel"></select></div>
+        <div class="field"><label>ライン</label><select id="line"></select></div>
+        <div class="field"><label>セット名</label><input id="setName" placeholder="例：明石青物①"></div>
+      </div>
+      <div class="tackle-save-row">
+        <button class="primary tackle-save" onclick="saveSet()">＋ タックルセットを登録</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tackle-section">
+    <div class="tackle-section-title">
+      <h2>🧰 パーツを登録</h2>
+      <p>登録画面を3つに分けて見やすく整理</p>
+    </div>
+
+    <div class="parts-register">
+      <div class="card part-card">
+        <div class="part-head">
+          <div class="part-icon">🎣</div>
+          <div><h3>ロッド登録</h3><p>ロッドの基本情報</p></div>
+        </div>
+        <div class="part-fields">
+          <div class="field"><label>ロッド名</label><input id="rodName" placeholder="例：ゲームタイプJ"></div>
+          <div class="field"><label>型番</label><input id="rodModel" placeholder="例：B60-3"></div>
+          <div class="field"><label>長さ</label><input id="rodLength" placeholder="例：6'0\""></div>
+          <div class="field"><label>メモ</label><input id="rodMemo" placeholder="例：明石青物用"></div>
+        </div>
+        <button class="primary part-save" onclick="saveRod()">＋ ロッドを登録</button>
+      </div>
+
+      <div class="card part-card">
+        <div class="part-head">
+          <div class="part-icon">⚙️</div>
+          <div><h3>リール登録</h3><p>リールの基本情報</p></div>
+        </div>
+        <div class="part-fields">
+          <div class="field"><label>リール名</label><input id="reelName" placeholder="例：ツインパワー"></div>
+          <div class="field"><label>番手</label><input id="reelSize" placeholder="例：8000"></div>
+          <div class="field"><label>ギア比</label><input id="reelGear" placeholder="例：6.2"></div>
+          <div class="field"><label>最大ドラグ</label><input id="reelDrag" placeholder="例：13kg"></div>
+        </div>
+        <button class="primary part-save" onclick="saveReel()">＋ リールを登録</button>
+      </div>
+
+      <div class="card part-card">
+        <div class="part-head">
+          <div class="part-icon">🧵</div>
+          <div><h3>ライン登録</h3><p>PE・リーダー情報</p></div>
+        </div>
+        <div class="part-fields">
+          <div class="field"><label>PEメーカー・商品名</label><input id="lineName" placeholder="例：PEジガーULT"></div>
+          <div class="field"><label>PE号数</label><input id="lineSize" placeholder="例：2.0"></div>
+          <div class="field"><label>リーダー</label><input id="leader" placeholder="例：フロロ"></div>
+          <div class="field"><label>リーダー号数 / lb</label><input id="leaderSize" placeholder="例：10号 / 40lb"></div>
+        </div>
+        <button class="primary part-save" onclick="saveLine()">＋ ラインを登録</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="tackle-section">
+    <div class="tackle-section-title"><h2>🎣 登録済みタックルセット</h2></div>
+    <div class="card"><div id="sets" class="list"></div></div>
+  </section>
+
+  <section class="tackle-section">
+    <div class="tackle-section-title"><h2>🧰 登録済みパーツ</h2></div>
+    <div class="parts-list">
+      <div class="parts-column"><h3 class="parts-column-title">🎣 ロッド</h3><div id="rodsList"></div></div>
+      <div class="parts-column"><h3 class="parts-column-title">⚙️ リール</h3><div id="reelsList"></div></div>
+      <div class="parts-column"><h3 class="parts-column-title">🧵 ライン</h3><div id="linesList"></div></div>
+    </div>
+  </section>
+</main>
+
+<script src="script.js"></script>
+<script>
 function opts(id,a,label){document.getElementById(id).innerHTML='<option value="">選択してください</option>'+a.map(x=>`<option value="${x.id}">${esc(x[label])}</option>`).join("")}
 function refresh(){opts("rod",get("rods"),"name");opts("reel",get("reels"),"name");opts("line",get("lines"),"name");render()}
-function saveRod(){if(!rodName.value)return alert("ロッド名を入力");let a=get("rods");a.push({id:Date.now(),name:rodName.value,model:rodModel.value,length:rodLength.value,memo:rodMemo.value});put("rods",a);rodName.value=rodModel.value=rodLength.value=rodMemo.value="";refresh()}
-function saveReel(){if(!reelName.value)return alert("リール名を入力");let a=get("reels");a.push({id:Date.now(),name:reelName.value,size:reelSize.value,gear:reelGear.value,drag:reelDrag.value});put("reels",a);reelName.value=reelSize.value=reelGear.value=reelDrag.value="";refresh()}
-function saveLine(){if(!lineName.value)return alert("ライン名を入力");let a=get("lines");a.push({id:Date.now(),name:lineName.value,size:lineSize.value,leader:leader.value,leaderSize:leaderSize.value});put("lines",a);lineName.value=lineSize.value=leader.value=leaderSize.value="";refresh()}
-function saveSet(){if(!setName.value)return alert("セット名を入力");const a=get("tackleSets");a.push({id:Date.now(),name:setName.value,rodId:rod.value,reelId:reel.value,lineId:line.value});put("tackleSets",a);setName.value="";refresh()}
+function saveRod(){if(!rodName.value.trim())return alert("ロッド名を入力してください");let a=get("rods");a.push({id:Date.now(),name:rodName.value.trim(),model:rodModel.value.trim(),length:rodLength.value.trim(),memo:rodMemo.value.trim()});put("rods",a);rodName.value=rodModel.value=rodLength.value=rodMemo.value="";refresh();alert("🎣 ロッドを登録しました！")}
+function saveReel(){if(!reelName.value.trim())return alert("リール名を入力してください");let a=get("reels");a.push({id:Date.now(),name:reelName.value.trim(),size:reelSize.value.trim(),gear:reelGear.value.trim(),drag:reelDrag.value.trim()});put("reels",a);reelName.value=reelSize.value=reelGear.value=reelDrag.value="";refresh();alert("⚙️ リールを登録しました！")}
+function saveLine(){if(!lineName.value.trim())return alert("ライン名を入力してください");let a=get("lines");a.push({id:Date.now(),name:lineName.value.trim(),size:lineSize.value.trim(),leader:leader.value.trim(),leaderSize:leaderSize.value.trim()});put("lines",a);lineName.value=lineSize.value=leader.value=leaderSize.value="";refresh();alert("🧵 ラインを登録しました！")}
+function saveSet(){if(!setName.value.trim())return alert("セット名を入力してください");const a=get("tackleSets");a.push({id:Date.now(),name:setName.value.trim(),rodId:rod.value,reelId:reel.value,lineId:line.value});put("tackleSets",a);setName.value="";refresh();alert("🎯 タックルセットを登録しました！")}
 function del(type,id){put(type,get(type).filter(x=>String(x.id)!==String(id)));refresh()}
-function render(){const rs=get("rods"),rr=get("reels"),ls=get("lines"),ss=get("tackleSets");const R=id=>rs.find(x=>String(x.id)===String(id)),E=id=>rr.find(x=>String(x.id)===String(id)),L=id=>ls.find(x=>String(x.id)===String(id));
-sets.innerHTML=ss.length?ss.slice().reverse().map(x=>{let r=R(x.rodId),e=E(x.reelId),l=L(x.lineId);return `<article class="item"><div class="item-head"><strong>🎣 ${esc(x.name)}</strong><button class="danger" onclick="del('tackleSets','${x.id}')">削除</button></div><div class="meta">ロッド：${esc(r?.name||"-")} ${esc(r?.model||"")}</div><div class="meta">リール：${esc(e?.name||"-")} ${esc(e?.size||"")}</div><div class="meta">ライン：${esc(l?.name||"-")} PE${esc(l?.size||"")} / リーダー ${esc(l?.leaderSize||"-")}</div></article>`}).join(""):'<div class="note">タックルセットがありません。</div>';
-parts.innerHTML=[...rs.map(x=>`<article class="item"><strong>🪄 ロッド：${esc(x.name)}</strong><div class="meta">${esc(x.model||"-")} / ${esc(x.length||"-")}</div></article>`),...rr.map(x=>`<article class="item"><strong>⚙️ リール：${esc(x.name)}</strong><div class="meta">${esc(x.size||"-")} / ギア比 ${esc(x.gear||"-")} / ドラグ ${esc(x.drag||"-")}</div></article>`),...ls.map(x=>`<article class="item"><strong>🧵 ライン：${esc(x.name)}</strong><div class="meta">PE${esc(x.size||"-")} / リーダー ${esc(x.leader||"-")} ${esc(x.leaderSize||"")}</div></article>`)].join("")||'<div class="note">登録パーツがありません。</div>'}
-refresh()
-</script><footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer></body></html>
+function render(){
+  const rs=get("rods"),rr=get("reels"),ls=get("lines"),ss=get("tackleSets");
+  const R=id=>rs.find(x=>String(x.id)===String(id)),E=id=>rr.find(x=>String(x.id)===String(id)),L=id=>ls.find(x=>String(x.id)===String(id));
+  document.getElementById("sets").innerHTML=ss.length?ss.slice().reverse().map(x=>{let r=R(x.rodId),e=E(x.reelId),l=L(x.lineId);return `<article class="item"><div class="item-head"><strong>🎯 ${esc(x.name)}</strong><button class="danger" onclick="del('tackleSets','${x.id}')">削除</button></div><div class="meta">🎣 ロッド：${esc(r?.name||"-")} ${esc(r?.model||"")}</div><div class="meta">⚙️ リール：${esc(e?.name||"-")} ${esc(e?.size||"")}</div><div class="meta">🧵 ライン：${esc(l?.name||"-")} PE${esc(l?.size||"")} / リーダー ${esc(l?.leaderSize||"-")}</div></article>`}).join(""):'<div class="note">タックルセットがありません。</div>';
+  document.getElementById("rodsList").innerHTML=rs.length?rs.slice().reverse().map(x=>`<article class="item"><strong>🎣 ${esc(x.name)}</strong><div class="meta">型番：${esc(x.model||"-")} / 長さ：${esc(x.length||"-")}</div>${x.memo?`<div class="meta">メモ：${esc(x.memo)}</div>`:""}</article>`).join(""):'<div class="note">未登録</div>';
+  document.getElementById("reelsList").innerHTML=rr.length?rr.slice().reverse().map(x=>`<article class="item"><strong>⚙️ ${esc(x.name)}</strong><div class="meta">番手：${esc(x.size||"-")} / ギア比：${esc(x.gear||"-")} / 最大ドラグ：${esc(x.drag||"-")}</div></article>`).join(""):'<div class="note">未登録</div>';
+  document.getElementById("linesList").innerHTML=ls.length?ls.slice().reverse().map(x=>`<article class="item"><strong>🧵 ${esc(x.name)}</strong><div class="meta">PE：${esc(x.size||"-")}号 / リーダー：${esc(x.leader||"-")} ${esc(x.leaderSize||"")}</div></article>`).join(""):'<div class="note">未登録</div>';
+}
+refresh();
+</script>
+<footer>JIG LOG — YOUR JIGGING DATA, YOUR NEXT BITE.</footer>
+</body>
+</html>
